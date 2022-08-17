@@ -19,7 +19,7 @@ class Page:
         self.pt_available = np.full((self.npts_y,self.npts_x), True)
 
 class Walker:
-    def __init__(self, page, idx_x, idx_y, lifetime):
+    def __init__(self, page, idx_x, idx_y, lifetime, direction_prefs):
         self.page = page            # Page object
         if idx_x <= self.page.npts_x-1:
             self.idx_x = idx_x
@@ -39,9 +39,9 @@ class Walker:
         self.x_prev = self.x_current
         self.y_prev = self.y_current
         
-        
         self.alive = True
         self.lifetime = lifetime        # Maximum number of steps the walker can do if not constrained too soon
+        self.direction_prefs = direction_prefs      # list of 4 values from 0 to 1 to determine directional preference
         
         self.available_directions = {"UP":True, "DOWN":True, "LEFT":True, "RIGHT":True}
         
@@ -89,13 +89,109 @@ class Walker:
         print(self.available_directions)
     
     def take_step(self):
-        pass
-    
+        while True:
+            # Check if there are any available directions
+            self.determine_available_steps()
+            if (self.available_directions["UP"] == False) and (self.available_directions["DOWN"] == False) and (self.available_directions["LEFT"] == False) and (self.available_directions["RIGHT"] == False):
+                self.alive = False
+                print("Walker died from getting trapped")
+                break                
+            
+            while self.alive:
+                # Generate random numbers
+                val = random.uniform(0, 1)
+                thresh_met = []
+                
+                for i,thresh in enumerate(self.direction_prefs):
+                    if val < thresh:
+                        thresh_met.append(thresh)
+                
+                while True:
+                    if len(thresh_met) == 0:
+                        break
+                    # find the index of the highest met threshold
+                    idx = self.direction_prefs.index(np.max(thresh_met))
+                    
+                    # Check if the chosen direction is available. If not, remove
+                    # that direction from the running and choose the next highest
+                    # threshold
+                    if idx == 0:
+                        key = "UP"
+                    elif idx == 1:
+                        key = "DOWN"
+                    elif idx == 2:
+                        key = "LEFT"
+                    elif idx == 3:
+                        key == "RIGHT"
+                    if self.available_directions[key] == True:
+                        break
+                    else:
+                        thresh_met.remove(np.max(thresh_met))
+                        if len(thresh_met) > 0:
+                            continue
+                        else:
+                            break
+                
+                if len(thresh_met) == 0:
+                    continue
+                
+                # Save previous locations and indices
+                self.x_prev = self.x_current
+                self.y_prev = self.y_current
+                self.idx_x_prev = self.idx_x
+                self.idx_y_prev = self.idx_y
+                
+                # Based on idx, take a step in the chosen direction
+                # UP
+                if idx == 0:
+                    self.idx_y += 1
+                    print("UP")
+                    
+                # DOWN
+                elif idx == 1:
+                    self.idx_y -= 1
+                    print("DOWN")
+                
+                # LEFT
+                elif idx == 2:
+                    self.idx_x -= 1
+                    print("LEFT")
+                    
+                # RIGHT
+                elif idx == 3:
+                    self.idx_x += 1
+                    print("RIGHT")
+                    
+                self.x_current = self.page.margin + self.idx_x*self.page.stepsize
+                self.y_current = self.page.margin + self.idx_y*self.page.stepsize
+                
+                # Append the new step position
+                self.path_pts.append([self.x_current, self.y_current])
+                
+                # Adjust the available points array
+                self.page.pt_available[self.idx_x,self.idx_y] = False
+                
+                break
+            break
+
+            
+    def walk(self):
+        steps = 1
+        
+        # Walk until the walker is dead
+        while self.alive:
+            self.take_step()
+            steps += 1
+            if steps > self.lifetime:
+                self.alive = False
+                print("Walker reached full life")
         
         
 if __name__ == "__main__":
     page = Page(8.5, 11, 0.5, 0.25)
-    walker = Walker(page, 6, 5, 11)
-    walker.plot_initial_position()
-    walker.determine_available_steps()
+    direction_prefs = [0.51, 0.7, 0.49, 0.39]
+    walker = Walker(page, 6, 5, 20, direction_prefs)
+    # walker.plot_initial_position()
+    # walker.determine_available_steps()
+    walker.walk()
         
