@@ -54,7 +54,39 @@ class Walker:
         plt.ylim([0,self.page.height])
         
     def determine_available_steps(self):
-        pass
+        # UP
+        if self.idx_y == (self.page.npts_y-1):
+            self.available_directions["UP"] = False
+        elif self.page.pt_available[self.idx_x, self.idx_y+1] == True:
+            self.available_directions["UP"] = True
+        else:
+            self.available_directions["UP"] = False
+            
+        # DOWN
+        if self.idx_y == 0:
+            self.available_directions["DOWN"] = False
+        elif self.page.pt_available[self.idx_x, self.idx_y-1] == True:
+            self.available_directions["DOWN"] = True
+        else:
+            self.available_directions["DOWN"] = False
+        
+        # LEFT
+        if self.idx_x == 0:
+            self.available_directions["LEFT"] = False
+        elif self.page.pt_available[self.idx_x-1, self.idx_y] == True:
+            self.available_directions["LEFT"] = True
+        else:
+            self.available_directions["LEFT"] = False
+                
+        # RIGHT
+        if self.idx_x == (self.page.npts_x-1):
+            self.available_directions["RIGHT"] = False
+        elif self.page.pt_available[self.idx_x+1, self.idx_y] == True:
+            self.available_directions["RIGHT"] = True
+        else:
+            self.available_directions["RIGHT"] = False
+            
+        print(self.available_directions)
     
     def take_step(self):
         pass
@@ -63,6 +95,7 @@ class Walker:
         
 if __name__ == "__main__":
     page = Page(8.5, 11, 0.5, 0.25)
-    walker = Walker(page, 3, 5, 11)
+    walker = Walker(page, 6, 5, 11)
     walker.plot_initial_position()
+    walker.determine_available_steps()
         
