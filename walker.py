@@ -45,7 +45,8 @@ class Walker:
         
         self.available_directions = {"UP":True, "DOWN":True, "LEFT":True, "RIGHT":True}
         
-        self.path_pts = [[self.x_current, self.y_current]]
+        self.path_pts_x = [self.x_current]
+        self.path_pts_y = [self.y_current]
             
     def plot_initial_position(self):
         fig, ax = plt.subplots(figsize=(self.page.width, self.page.height), dpi=300)
@@ -86,7 +87,7 @@ class Walker:
         else:
             self.available_directions["RIGHT"] = False
             
-        print(self.available_directions)
+        # print(self.available_directions)
     
     def take_step(self):
         while True:
@@ -145,34 +146,89 @@ class Walker:
                 # UP
                 if idx == 0:
                     self.idx_y += 1
-                    print("UP")
+                    # print("UP")
                     
                 # DOWN
                 elif idx == 1:
                     self.idx_y -= 1
-                    print("DOWN")
+                    # print("DOWN")
                 
                 # LEFT
                 elif idx == 2:
                     self.idx_x -= 1
-                    print("LEFT")
+                    # print("LEFT")
                     
                 # RIGHT
                 elif idx == 3:
                     self.idx_x += 1
-                    print("RIGHT")
+                    # print("RIGHT")
                     
                 self.x_current = self.page.margin + self.idx_x*self.page.stepsize
                 self.y_current = self.page.margin + self.idx_y*self.page.stepsize
                 
                 # Append the new step position
-                self.path_pts.append([self.x_current, self.y_current])
+                self.path_pts_x.append(self.x_current)
+                self.path_pts_y.append(self.y_current)
                 
                 # Adjust the available points array
                 self.page.pt_available[self.idx_x,self.idx_y] = False
                 
                 break
             break
+        
+    
+    def take_random_step(self):
+        while True:
+            # Check if there are any available directions
+            self.determine_available_steps()
+            if (self.available_directions["UP"] == False) and (self.available_directions["DOWN"] == False) and (self.available_directions["LEFT"] == False) and (self.available_directions["RIGHT"] == False):
+                self.alive = False
+                # print("Walker died from getting trapped")
+                break                
+            else:
+                direction_indices = []
+                if self.available_directions["UP"] == True:
+                    direction_indices.append(0)
+                if self.available_directions["DOWN"] == True:
+                    direction_indices.append(1)
+                if self.available_directions["LEFT"] == True:
+                    direction_indices.append(2)
+                if self.available_directions["RIGHT"] == True:
+                    direction_indices.append(3)
+                    
+                # Randomly choose the direction index
+                idx = random.choice(direction_indices)
+                # Based on idx, take a step in the chosen direction
+                # UP
+                if idx == 0:
+                    self.idx_y += 1
+                    # print("UP")
+                    
+                # DOWN
+                elif idx == 1:
+                    self.idx_y -= 1
+                    # print("DOWN")
+                
+                # LEFT
+                elif idx == 2:
+                    self.idx_x -= 1
+                    # print("LEFT")
+                    
+                # RIGHT
+                elif idx == 3:
+                    self.idx_x += 1
+                    # print("RIGHT")
+                    
+                self.x_current = self.page.margin + self.idx_x*self.page.stepsize
+                self.y_current = self.page.margin + self.idx_y*self.page.stepsize
+                
+                # Append the new step position
+                self.path_pts_x.append(self.x_current)
+                self.path_pts_y.append(self.y_current)
+                
+                # Adjust the available points array
+                self.page.pt_available[self.idx_x,self.idx_y] = False
+            
 
             
     def walk(self):
@@ -180,18 +236,38 @@ class Walker:
         
         # Walk until the walker is dead
         while self.alive:
-            self.take_step()
+            # self.take_step()
+            self.take_random_step()
             steps += 1
             if steps > self.lifetime:
                 self.alive = False
                 print("Walker reached full life")
+                
+    def plot_path(self, fig, ax):
+        # fig, ax = plt.subplots(figsize=(self.page.width, self.page.height), dpi=300)
+        ax.plot(self.path_pts_x, self.path_pts_y, 'k')
+        plt.xlim([0,self.page.width])
+        plt.ylim([0,self.page.height])
         
         
 if __name__ == "__main__":
-    page = Page(8.5, 11, 0.5, 0.25)
+    page = Page(11, 8.5, 0.5, 0.05)
     direction_prefs = [0.51, 0.7, 0.49, 0.39]
-    walker = Walker(page, 6, 5, 20, direction_prefs)
-    # walker.plot_initial_position()
-    # walker.determine_available_steps()
-    walker.walk()
+    
+    n_walkers = 400
+    fig, ax = plt.subplots(figsize=(page.width, page.height), dpi=300)
+    
+    
+    for i in range(n_walkers):
+        idx_x = random.randint(20,150)
+        idx_y = random.randint(20,150)
+        
+        walker = Walker(page, idx_x, idx_y, 100, direction_prefs)
+        # walker.plot_initial_position()
+        # walker.determine_available_steps()
+        try:
+            walker.walk()
+            walker.plot_path(fig, ax)
+        except IndexError:
+            continue
         
