@@ -628,7 +628,8 @@ class World:
             
             # Draw lines
             segments = np.concatenate([points[:-1, np.newaxis], points[1:, np.newaxis]], axis=1)
-            lc = LineCollection(segments, colors=[line_color + [alpha]], linewidths=line_width)
+            lc = LineCollection(segments, colors=list(line_color).append(alpha), linewidths=line_width)
+            # lc = LineCollection(segments, colors=[line_color + [alpha]], linewidths=line_width)
             ax.add_collection(lc)
             
             # Draw points if requested
@@ -723,7 +724,7 @@ if __name__ == "__main__":
         width=800, 
         height=800, 
         num_creatures=80,  # More creatures
-        num_resources=70   # More resources
+        num_resources=200   # More resources
     )
     
     # Run simulation
