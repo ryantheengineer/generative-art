@@ -28,9 +28,9 @@ TARGET_SIZE = (new_width, new_height)  # Ensure consistency: (width, height)
 target_array = np.array(target_img)  # Keep this in (height, width) format
 
 # Parameters
-POPULATION_SIZE = 30
-NUM_GENERATIONS = 500
-INITIAL_TRIANGLE_COUNT = 5000  # Approximate number of triangles
+POPULATION_SIZE = 100
+NUM_GENERATIONS = 100
+INITIAL_TRIANGLE_COUNT = 10000  # Approximate number of triangles
 LINE_THICKNESS = 2  # Thickness of the triangle edges
 
 def generate_initial_points(num_points):
