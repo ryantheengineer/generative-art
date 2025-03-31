@@ -52,19 +52,22 @@ class WhaleOptimizationArt:
         y = np.linspace(0, 10, self.height)
         X, Y = np.meshgrid(x, y)
         
-        # Create multiple wave patterns
-        Z = np.sin(0.5*X) * np.cos(0.5*Y) + np.sin(0.1*X+2) * np.cos(0.3*Y) 
-        Z += np.sin(X+Y) + np.cos(X-Y)
+        A = 10
+        Z = 2 * A + (X**2 - A * np.cos(2 * np.pi * X)) + (Y**2 - A * np.cos(2 * np.pi * Y))
         
-        # Add some circular "target" areas that whales might converge on
-        for _ in range(3):
-            cx = random.uniform(1, 9)
-            cy = random.uniform(1, 9)
-            radius = random.uniform(0.5, 2.0)
-            Z += 2 * np.exp(-((X-cx)**2 + (Y-cy)**2) / radius**2)
+        # # Create multiple wave patterns
+        # Z = 10*np.sin(0.5*X) * np.cos(0.5*Y) + np.sin(0.1*X+2) * np.cos(0.3*Y) 
+        # Z += np.sin(X+Y) + np.cos(X-Y)
         
-        # Normalize to [0, 1] range
-        Z = (Z - Z.min()) / (Z.max() - Z.min())
+        # # Add some circular "target" areas that whales might converge on
+        # # for _ in range(3):
+        # #     cx = random.uniform(1, 9)
+        # #     cy = random.uniform(1, 9)
+        # #     radius = random.uniform(0.5, 2.0)
+        # #     Z += 2 * np.exp(-((X-cx)**2 + (Y-cy)**2) / radius**2)
+        
+        # # Normalize to [0, 1] range
+        # Z = (Z - Z.min()) / (Z.max() - Z.min())
         
         return Z
     
